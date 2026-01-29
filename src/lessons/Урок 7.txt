@@ -55,5 +55,44 @@ Spring-приложение глобально состоит из трех со
 
 Конфигурация Spring-приложения.
     1. Через maven-webapp создаем новый проект.
-    2. Добавляем нужные зависимости в pom.xml
-    3. Удаляем все ненужное: index.jsp, web.xml
+    2. Добавляем нужные зависимости в pom.xml.
+    3. Удаляем все ненужное: index.jsp, web.xml.
+    4. Скачиваем Tomcat и связываем с веб-приложением.
+    5. Добавляем недостающие папки в структуру проекта.
+    6. Создаем WebConfig и ApplicationInitializer.
+        Версия Spring 5.3.29 в новых версиях используется jakarta вместо javax
+
+            @Configuration
+            @EnableWebMvc
+            @ComponentScan("com.suleymanov")
+            public class WebConfig implements WebMvcConfigurer {
+            }
+
+            public class ApplicationInitializer implements WebApplicationInitializer {
+
+                private static final String DISPATCHER = "dispatcher";
+
+
+                @Override
+                public void onStartup(ServletContext servletContext) throws ServletException {
+
+                    AnnotationConfigWebApplicationContext  context = new AnnotationConfigWebApplicationContext();
+                    context.register(WebConfig.class);
+                    servletContext.addListener(new ContextLoaderListener(context));
+
+                    ServletRegistration.Dynamic servlet = servletContext.addServlet(DISPATCHER, new DispatcherServlet(context));
+                    servlet.addMapping("/");
+                    servlet.setLoadOnStartup(1);
+
+                }
+            }
+
+Аннотации @Controller и @RequestMapping
+
+Аннотация @Controller - это специализированный @Component, который дополнительно сообщает DispatcherServlet-y о том,
+что готов обрабатывать входящие запросы по URL-ам, которые указаны в классе при помощи аннотации @RequestMapping.
+
+Аннотация @RequestMapping связывает метод контроллера с URL-ом веб-приложения.
+
+Аннотация @requestMapping также можно использовать и для класса контроллера. В таком случае указанный URL будет
+использовать в качестве префикса для всех методов, помеченных @RequestMapping.
