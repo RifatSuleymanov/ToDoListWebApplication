@@ -9,15 +9,27 @@ import java.util.List;
 
 @Repository
 public class RecordDao {
-    private final List<Record> records = new ArrayList<>(
-            List.of(
-                    new Record("Take a shower", RecordStatus.ACTIVE),
-                    new Record("By flowers", RecordStatus.ACTIVE),
-                    new Record("Go to the gym", RecordStatus.ACTIVE)
-            )
-    );
+    private final List<Record> records = new ArrayList<>();
 
     public List<Record> findAllRecords() {
         return new ArrayList<>(records);
+    }
+
+    public void saveRecord(Record record) {
+        records.add(record);
+    }
+
+    public void updateRecordStatus(Integer id
+            , RecordStatus newStatus) {
+        for (Record item : records) {
+            if (item.getId() == id) {
+                item.setStatus(newStatus);
+                break;
+            }
+        }
+    }
+
+    public void deleteRecord(Integer id) {
+        records.removeIf(record -> record.getId() == id);
     }
 }

@@ -1,0 +1,28 @@
+Модуль: Spring MVC.
+Лекция: Аннотация @RequestParam
+
+Аннотация @RequestParam позволяет связать GET-параметр (или query-параметр) из URL с аргументом метода у класса
+помеченного аннотацией @Controller.
+
+            //Запрос - http://localhost:8080/page?name=Artie&age=26
+            @RequestMapping("/page")
+            public String getPage(@RequestParam String name,
+                                  @RequestParam int age) {
+              //Какая то логика
+              return "page";
+            }
+Все GET-параметры разделаются через знак "&", а самый первый GET-параметр отделяется от всего URL через знак "?".
+
+Redirect на другой URL.
+Spring предоставляет механизм, благодаря которому можно совершать redirect (или редирект, перенаправление) на другие URL.
+
+redirect:/...Адрес... Адрес - это IRL, на который нужно сделать redirect.
+
+    @RequestMapping("/page")
+    public String redirectToAnotherPage() {
+        //Какая-то логика
+        return "redirect:/another-page";
+    }
+
+https://localhost:8080/page сработает именно этот метод,
+он выполнить логику и перенаправить на localhost:8080/another-page
