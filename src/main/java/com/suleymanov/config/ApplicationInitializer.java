@@ -6,29 +6,19 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 
 public class ApplicationInitializer implements WebApplicationInitializer {
+    private static final String DISPATCHER = "dispatcher";
 
     @Override
     public void onStartup(ServletContext servletContext) {
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.register(WebConfig.class);
+        servletContext.addListener(new ContextLoaderListener(context));
 
-        AnnotationConfigWebApplicationContext rootContext =
-                new AnnotationConfigWebApplicationContext();
-        rootContext.register(DataBaseConfig.class);
-        servletContext.addListener(new ContextLoaderListener(rootContext));
-
-        AnnotationConfigWebApplicationContext servletContextCfg =
-                new AnnotationConfigWebApplicationContext();
-        servletContextCfg.register(WebConfig.class);
-
-        DispatcherServlet dispatcherServlet =
-                new DispatcherServlet(servletContextCfg);
-
-        ServletRegistration.Dynamic servlet =
-                servletContext.addServlet("dispatcher", dispatcherServlet);
-        servlet.setLoadOnStartup(1);
+        ServletRegistration.Dynamic servlet = servletContext.addServlet(DISPATCHER, new DispatcherServlet(context));
         servlet.addMapping("/");
+        servlet.setLoadOnStartup(1);
     }
 }
