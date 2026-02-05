@@ -32,23 +32,29 @@ public class DataBaseConfig {
 
     @Bean
     public DataSource dataSource() {
+        System.out.println("Создаём DataSource...");
+        System.out.println("DB URL: " + databaseUrl);
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(databaseDriver);
         dataSource.setUrl(databaseUrl);
         dataSource.setUsername(databaseUsername);
         dataSource.setPassword(databasePassword);
+        System.out.println("DataSource создан");
         return dataSource;
     }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
-        LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
-        entityManagerFactory.setDataSource(dataSource);
-        entityManagerFactory.setPackagesToScan("com.suleymanov.entity");
-        entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        entityManagerFactory.setJpaProperties(getHibernateProperties());
-        return entityManagerFactory;
+        System.out.println("Создаём EntityManagerFactory...");
+        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+        emf.setDataSource(dataSource);
+        emf.setPackagesToScan("com.suleymanov.entity");
+        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        emf.setJpaProperties(getHibernateProperties());
+        System.out.println("EntityManagerFactory создан");
+        return emf;
     }
+
 
     private Properties getHibernateProperties() {
         Properties properties = new Properties();
