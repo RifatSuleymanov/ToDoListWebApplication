@@ -4,6 +4,9 @@ public class QueryParameters {
     private int id;
     private String filter;
 
+    public QueryParameters() {
+    }
+
     public QueryParameters(int id, String filter) {
         this.id = id;
         this.filter = filter;

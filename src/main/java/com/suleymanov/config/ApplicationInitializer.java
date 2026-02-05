@@ -11,23 +11,24 @@ import jakarta.servlet.ServletRegistration;
 
 public class ApplicationInitializer implements WebApplicationInitializer {
 
-    private static final String DISPATCHER = "dispatcher";
-
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-        try {
-            AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-            context.register(WebConfig.class);
-            servletContext.addListener(new ContextLoaderListener(context));
+    public void onStartup(ServletContext servletContext) {
 
-            ServletRegistration.Dynamic servlet = servletContext.addServlet(DISPATCHER, new DispatcherServlet(context));
-            servlet.addMapping("/");
-            servlet.setLoadOnStartup(1);
+        AnnotationConfigWebApplicationContext rootContext =
+                new AnnotationConfigWebApplicationContext();
+        rootContext.register(DataBaseConfig.class);
+        servletContext.addListener(new ContextLoaderListener(rootContext));
 
-        } catch (Throwable t) {
-            t.printStackTrace();  // <-- Показывает точную причину падения Listener
-            throw new ServletException("Ошибка при старте Spring Context", t);
-        }
+        AnnotationConfigWebApplicationContext servletContextCfg =
+                new AnnotationConfigWebApplicationContext();
+        servletContextCfg.register(WebConfig.class);
+
+        DispatcherServlet dispatcherServlet =
+                new DispatcherServlet(servletContextCfg);
+
+        ServletRegistration.Dynamic servlet =
+                servletContext.addServlet("dispatcher", dispatcherServlet);
+        servlet.setLoadOnStartup(1);
+        servlet.addMapping("/");
     }
-
 }

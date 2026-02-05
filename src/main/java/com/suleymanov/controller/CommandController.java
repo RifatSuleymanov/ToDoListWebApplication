@@ -4,6 +4,7 @@ import com.suleymanov.entity.RecordStatus;
 import com.suleymanov.entity.dto.QueryParameters;
 import com.suleymanov.entity.dto.RecordsContainerDto;
 import com.suleymanov.service.RecordService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,15 +21,19 @@ public class CommandController {
     @Autowired
     public CommandController(RecordService recordService) {
         this.recordService = recordService;
+        System.out.println("CommandController initialized");
     }
 
-    @RequestMapping("/")
-    public String redirectToHomePage(){
-        return "redirect:/home";
+    @RequestMapping({"", "/"})
+    public String redirectToHomePage(HttpServletRequest request) {
+        System.out.println("redirectToHomePage log");
+        return "redirect:" + "/home";
     }
 
     @RequestMapping("/home")
-    public String getMainPage(Model model,@RequestParam(name = "filter", required = false) String filterMode) {
+    public String getMainPage(Model model, @RequestParam(name = "filter", required = false) String filterMode) {
+        System.out.println("getMainPage log");
+        System.out.println("getMainPageHome log");
         RecordsContainerDto container = recordService.findAllRecords(filterMode);
         model.addAttribute("records", container.getRecords());
         model.addAttribute("numberOfDoneRecords", container.getNumberOfDoneRecords());
@@ -37,19 +42,22 @@ public class CommandController {
     }
 
     @RequestMapping(value = "/add-record", method = RequestMethod.POST)
-    public String addRecord(@RequestParam String title){
+    public String addRecord(@RequestParam("title") String title) {
+        System.out.println("addRecord log");
         recordService.saveRecord(title);
         return "redirect:/home";
     }
 
     @RequestMapping(value = "/make-record-done", method = RequestMethod.POST)
-    public String makeRecordDone(QueryParameters parameters){
+    public String makeRecordDone(QueryParameters parameters) {
+        System.out.println("makeRecordDone log");
         recordService.updateRecordStatus(parameters.getId(), RecordStatus.DONE);
         return "redirect:/home" + (parameters.getFilter() != null && !parameters.getFilter().isBlank() ? "?filter=" + parameters.getFilter() : "");
     }
 
     @RequestMapping(value = "/delete-record", method = RequestMethod.POST)
-    public String deleteRecord(QueryParameters parameters){
+    public String deleteRecord(QueryParameters parameters) {
+        System.out.println("deleteRecord log");
         recordService.deleteRecord(parameters.getId());
         return "redirect:/home" + (parameters.getFilter() != null && !parameters.getFilter().isBlank() ? "?filter=" + parameters.getFilter() : "");
     }
