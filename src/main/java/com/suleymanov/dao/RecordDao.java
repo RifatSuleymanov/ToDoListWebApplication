@@ -11,13 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-@Transactional
 public class RecordDao {
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Transactional(readOnly = true)
     public List<Record> findAllRecords() {
         Query query = entityManager.createQuery("SELECT r FROM Record r ORDER BY r.id ASC");
         List<Record> records = query.getResultList();

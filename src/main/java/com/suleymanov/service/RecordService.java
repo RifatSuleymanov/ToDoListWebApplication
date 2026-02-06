@@ -6,11 +6,13 @@ import com.suleymanov.entity.RecordStatus;
 import com.suleymanov.entity.dto.RecordsContainerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Transactional
 public class RecordService {
     private final RecordDao recordDao;
 
@@ -19,6 +21,7 @@ public class RecordService {
         this.recordDao = recordDao;
     }
 
+    @Transactional(readOnly = true)
     public RecordsContainerDto findAllRecords(String filterMode) {
 
         List<Record> records = recordDao.findAllRecords();
