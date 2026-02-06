@@ -1,92 +1,43 @@
 package com.suleymanov.dao;
+
+import com.suleymanov.entity.Record;
 import com.suleymanov.entity.RecordStatus;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import com.suleymanov.entity.Record;
+import org.springframework.transaction.annotation.Transactional;
 
-
-import java.util.Collections;
 import java.util.List;
 
 @Repository
+@Transactional
 public class RecordDao {
-    private final EntityManagerFactory entityManagerFactory;
 
-    @Autowired
-    public RecordDao(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public List<com.suleymanov.entity.Record> findAllRecords() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-
-            Query query = entityManager.createQuery("SELECT r FROM Record r");
-            List<Record> records = query.getResultList();
-
-            entityManager.getTransaction().commit();
-            return records;
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            entityManager.getTransaction().rollback();
-            return Collections.emptyList();
-        } finally {
-            entityManager.close();
-        }
+    @Transactional(readOnly = true)
+    public List<Record> findAllRecords() {
+        Query query = entityManager.createQuery("SELECT r FROM Record r ORDER BY r.id ASC");
+        List<Record> records = query.getResultList();
+        return records;
     }
 
     public void saveRecord(Record record) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-            entityManager.persist(record);
-            entityManager.getTransaction().commit();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            entityManager.getTransaction().rollback();
-        } finally {
-            entityManager.close();
-        }
+        entityManager.persist(record);
     }
 
     public void updateRecordStatus(int id, RecordStatus newStatus) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-
-            Query query = entityManager.createQuery("UPDATE Record SET status = :status WHERE id = :id");
-            query.setParameter("id", id);
-            query.setParameter("status", newStatus);
-            query.executeUpdate();
-
-            entityManager.getTransaction().commit();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            entityManager.getTransaction().rollback();
-        } finally {
-            entityManager.close();
-        }
+        Query query = entityManager.createQuery("UPDATE Record SET status = :status WHERE id = :id");
+        query.setParameter("id", id);
+        query.setParameter("status", newStatus);
+        query.executeUpdate();
     }
 
     public void deleteRecord(int id) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-
-            Query query = entityManager.createQuery("DELETE FROM Record WHERE id = :id");
-            query.setParameter("id", id);
-            query.executeUpdate();
-
-            entityManager.getTransaction().commit();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            entityManager.getTransaction().rollback();
-        } finally {
-            entityManager.close();
-        }
+        Query query = entityManager.createQuery("DELETE FROM Record WHERE id = :id");
+        query.setParameter("id", id);
+        query.executeUpdate();
     }
 }

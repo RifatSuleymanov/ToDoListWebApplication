@@ -23,6 +23,7 @@
     <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
     <jstl.version>3.0.1</jstl.version>
     <postgresql.version>42.7.7</postgresql.version>
+    <dbcp.version>2.12.0</dbcp.version>
   </properties>
 
   <dependencies>
@@ -103,6 +104,13 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>2.0.9</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>${dbcp.version}</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

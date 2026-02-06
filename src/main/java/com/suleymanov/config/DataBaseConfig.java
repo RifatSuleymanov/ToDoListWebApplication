@@ -1,5 +1,7 @@
 package com.suleymanov.config;
 
+import jakarta.persistence.EntityManagerFactory;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +38,26 @@ public class DataBaseConfig {
     private String hibernateShowSql;
     @Value("${hibernate.hbm2ddl.auto}")
     private String hibernateHbm2DdlAuto;
+    @Value("${db.connection-pool-initial-size}")
+    private int databaseConnectionPoolInitialSize;
+    @Value("${db.connection-pool-min-idle}")
+    private int databaseConnectionPoolMinIdle;
+    @Value("${db.connection-pool-max-idle}")
+    private int databaseConnectionPoolMaxIdle;
+    @Value("${db.connection-pool-max-total}")
+    private int databaseConnectionPoolMaxTotal;
 
     @Bean
     public DataSource dataSource() {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
+        BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(databaseDriver);
         ds.setUrl(databaseUrl);
         ds.setUsername(databaseUsername);
         ds.setPassword(databasePassword);
+        ds.setInitialSize(databaseConnectionPoolInitialSize);
+        ds.setMinIdle(databaseConnectionPoolMinIdle);
+        ds.setMaxIdle(databaseConnectionPoolMaxIdle);
+        ds.setMaxTotal(databaseConnectionPoolMaxTotal);
         return ds;
     }
 
@@ -51,10 +65,17 @@ public class DataBaseConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
-        emf.setPackagesToScan("com.suleymanov.entity"); // ваши сущности
+        emf.setPackagesToScan("com.suleymanov.entity");
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         emf.setJpaProperties(hibernateProperties());
         return emf;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        JpaTransactionManager manager = new JpaTransactionManager();
+        manager.setEntityManagerFactory(entityManagerFactory);
+        return manager;
     }
 
     private Properties hibernateProperties() {
@@ -63,12 +84,5 @@ public class DataBaseConfig {
         props.put("hibernate.show_sql", hibernateShowSql);
         props.put("hibernate.hbm2ddl.auto", hibernateHbm2DdlAuto);
         return props;
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager(LocalContainerEntityManagerFactoryBean emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf.getObject());
-        return tm;
     }
 }
